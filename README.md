@@ -72,13 +72,14 @@ Enter insert mode by selecting the `i` key.
 
 Paste the following code into the editor, keeping in mind that the name variable underneath `azure_rm_resourcegroup` can be anything you want:
 
-```---
+```
+---
 - hosts: localhost
   connection: local
   tasks:
     - name: Create resource group
       azure_rm_resourcegroup:
-        name: config-test
+        name: [esource_group_name]
         location: eastus
       register: rg
     - debug:
