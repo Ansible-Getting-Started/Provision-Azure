@@ -26,19 +26,23 @@ To find out what your subscription ID is, type in:
 
 Output like this should show up; copy this information into a text file so that you can copy/paste it later:
 
-```{
+```
+{
   "subscription_id": "854c5e9a-ed49-687e-bc7a-96ed7315095"
-}```
- 
+}
+```
+
 Then, type this command in:
 `az ad sp create-for-rbac --query '{"client_id": appId, "secret": password, "tenant": tenant}'`
 
 Output like this should show up; copy this information into a text file so that you can copy/paste it later:
-```{
+```
+{
   "client_id": "eec5624a-90f8-4386-8a87-02730b5410d5",
   "secret": "531dcffa-3aff-4488-99bb-4816c395ea3f",
   "tenant": "72f988bf-86f1-41af-91ab-2d7cd011db47"
-}```
+}
+```
 
 Now you’re ready to create a credentials file for Ansible on Cloud Shell.  Input the following commands to change into the `.azure` directory, and create/edit the credentials file:
 
@@ -47,21 +51,26 @@ Now you’re ready to create a credentials file for Ansible on Cloud Shell.  Inp
 
 The credentials file itself combines the subscription ID with the output of creating a service principal.  Type `i` in order to insert the following lines into the credentials file - replacing the placeholders with the information from the output you got earlier:
 
-```[default]
+```
+[default]
 subscription_id=<your-subscription_id>
 client_id=<security-principal-appid>
 secret=<security-principal-password>
-tenant=<security-principal-tenant>```
+tenant=<security-principal-tenant>
+```
 
 Exit insert mode by selecting the Esc key, then save and close the file with `:wq`.
 
 <h1>Verify the Configuration</h1>
-In order to make sure everything is configured correctly, let’s use Ansible to create a resource group.
-In CloudShell, create a file named rg.yml:
-vi rg.yml
-Enter insert mode by selecting the ‘i’ key.
 
-Paste the following code into the editor, keeping in mind that the name variable underneath azure_rm_resourcegroup can be anything you want:
+In order to make sure everything is configured correctly, let’s use Ansible to create a resource group.
+
+In CloudShell, create a file named rg.yml:
+`vi rg.yml`
+
+Enter insert mode by selecting the `i` key.
+
+Paste the following code into the editor, keeping in mind that the name variable underneath `azure_rm_resourcegroup` can be anything you want:
 
 ```---
 - hosts: localhost
@@ -83,7 +92,8 @@ Run the playbook rg.yml:
 
 The results of running the ansible command should look similar to the following output:
  
-```PLAY [localhost] *********************************************************************************
+```
+PLAY [localhost] *********************************************************************************
 
 TASK [Gathering Facts] ***************************************************************************
 ok: [localhost]
