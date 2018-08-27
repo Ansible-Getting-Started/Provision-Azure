@@ -4,14 +4,16 @@ For simplicity, we will use Azure’s built-in Cloud Shell command line tool.  S
 
 Follow the instructions below:
 
-<h1>Make Sure Ansible is Installed</h1>
+<h2>Setup</h2>
+
+<h3>Make Sure Ansible is Installed</h3>
 
 To check for Ansible, type in:
 `which ansible`
 
 Azure CLI will need to be version 2.0.4 or later.  Run the `az --version` command to find the version.
 
-<h1>Acquire Azure Credentials and Configure Ansible to Use Them</h1>
+<h3>Acquire Azure Credentials and Configure Ansible to Use Them</h3>
 
 For a development environment, create a credentials file for Ansible on your Cloud Shell as follows.
 
@@ -60,7 +62,7 @@ tenant=<security-principal-tenant>
 
 Exit insert mode by selecting the Esc key, then save and close the file with `:wq`.
 
-<h1>Verify the Configuration</h1>
+<h3>Verify the Configuration</h3>
 
 In order to make sure everything is configured correctly, let’s use Ansible to create a resource group.
 
