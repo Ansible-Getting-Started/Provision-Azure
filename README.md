@@ -126,7 +126,8 @@ localhost                  : ok=3    changed=1    unreachable=0    failed=0
 Navigate to the Resource Groups tab on the left side of the Azure user interface to see your newly created resource group!
 
 
-<h2>Create a VM in Azure!</h2>
+
+<h2>Create a VM in Azure</h2>
 
 In this example, you create a playbook that deploys a VM into an existing infrastructure.  First, make sure to create an SSH key pair with the `ssh-keygen` command.  Then, enter the following:
 `cat ~/.ssh/id_rsa.pub`
@@ -197,3 +198,188 @@ localhost                  : ok=2    changed=1    unreachable=0    failed=0
 
 Check the dashboard for the new VM!
 
+
+
+<h2>Create a Virtual Network</h2>
+
+Create an Ansible playbook named `azure_create_network.yml` and paste the following contents.  The fields in red might be different, according to what you input in the previous playbooks.  Again, remember to enter your own complete public key data in the `key_data` portion:
+
+```
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      resource_group: webinar-test
+      name: webinarVnet
+      address_prefixes: "10.0.0.0/16"
+  - name: Add subnet
+    azure_rm_subnet:
+      resource_group: webinar-test
+      name: webinarSubnet
+      address_prefix: "10.0.1.0/24"
+      virtual_network: webinarVnet
+  - name: Create public IP address
+    azure_rm_publicipaddress:
+      resource_group: webinar-test
+      allocation_method: Static
+      name: myPublicIP
+  - name: Create Network Security Group that allows SSH
+    azure_rm_securitygroup:
+      resource_group: webinar-test
+      name: webinarNetworkSecurityGroup
+      rules:
+        - name: SSH
+          protocol: Tcp
+          destination_port_range: 22
+          access: Allow
+          priority: 1001
+          direction: Inbound
+  - name: Create virtual network interface card
+    azure_rm_networkinterface:
+      resource_group: webinar-test
+      name: myNIC
+      virtual_network: webinarVnet
+      subnet: webinarSubnet
+      public_ip_name: myPublicIP
+      security_group: webinarNetworkSecurityGroup
+  - name: Create VM
+    azure_rm_virtualmachine:
+      resource_group: webinar-test
+      name: WebinarNetworkVM
+      vm_size: Standard_DS1_v2
+      admin_username: azureuser
+      ssh_password_enabled: false
+      ssh_public_keys: 
+        - path: /home/azureuser/.ssh/authorized_keys
+          key_data: "ssh-rsa AAAAB3Nz{snip}hwhqT9h"
+      network_interfaces: myNIC
+      image:
+        offer: CentOS
+        publisher: OpenLogic
+        sku: '7.3'
+        version: latest
+```
+
+<h3>How the azure_create_network.yml Playbook Works</h3>
+
+The following section in an Ansible playbook creates a virtual network named `webinarVnet` in the `10.0.0.0/16` address space, if you haven’t done so already.  Even if you already have, this task will do no harm on re-run:
+
+```
+- name: Create virtual network
+  azure_rm_virtualnetwork:
+    resource_group: webinar-test
+    name: webinarVnet
+    address_prefixes: "10.0.0.0/16"
+```
+
+To add a subnet, the following section creates a subnet named `webinarSubnet` in the `webinarVnet` virtual network:
+
+```
+- name: Add subnet
+  azure_rm_subnet:
+    resource_group: webinar-test
+    name: webinarSubnet
+    address_prefix: "10.0.1.0/24"
+    virtual_network: webinarVnet
+```
+
+To access resources across the internet, create and assign a public IP address to your VM. The following section in `azure_create_network.yml` creates a public IP address named `myPublicIP`:
+
+```
+- name: Create public IP address
+  azure_rm_publicipaddress:
+    resource_group: webinar-test
+    allocation_method: Static
+    name: myPublicIP
+```
+
+Network Security Groups control the flow of network traffic in and out of your VM. The following section in `azure_create_network.yml` creates a network security group named `webinarNetworkSecurityGroup` and defines a rule to allow SSH traffic on TCP port 22:
+
+```
+- name: Create Network Security Group that allows SSH
+  azure_rm_securitygroup:
+    resource_group: webinar-test
+    name: webinarNetworkSecurityGroup
+    rules:
+      - name: SSH
+        protocol: Tcp
+        destination_port_range: 22
+        access: Allow
+        priority: 1001
+        direction: Inbound
+```
+
+A virtual network interface card (NIC) connects your VM to a given virtual network, public IP address, and network security group. The following section in `azure_create_network.yml` creates a virtual NIC named myNIC connected to the virtual networking resources you have created:
+
+```
+- name: Create virtual network interface card
+  azure_rm_networkinterface:
+    resource_group: webinar-test
+    name: myNIC
+    virtual_network: webinarVnet
+    subnet: webinarSubnet
+    public_ip_name: myPublicIP
+    security_group: webinarNetworkSecurityGroup
+```
+
+The final step is to create a VM and use all the resources created. The following section creates a VM named `WebinarNetworkVM` and attaches the virtual NIC named myNIC, with your own complete public key data in the `key_data` portion:
+
+```
+- name: Create VM
+  azure_rm_virtualmachine:
+    resource_group: webinar-test
+    name: WebinarNetworkVM
+    vm_size: Standard_DS1_v2
+    admin_username: azureuser
+    ssh_password_enabled: false
+    ssh_public_keys: 
+      - path: /home/azureuser/.ssh/authorized_keys
+        key_data: "ssh-rsa AAAAB3Nz{snip}hwhqT9h"
+    network_interfaces: myNIC
+    image:
+      offer: CentOS
+      publisher: OpenLogic
+      sku: '7.3'
+      version: latest
+```
+
+<h3>Running the Azure Network Playbook</h3>
+
+To create the complete VM environment with Ansible, run the playbook as follows:
+
+`ansible-playbook azure_create_network.yml`
+
+The output looks similar to the following example that shows the VM has been successfully created:
+
+```
+PLAY [Create Azure VM] ****************************************************
+
+TASK [Gathering Facts] ****************************************************
+ok: [localhost]
+
+TASK [Create virtual network] *********************************************
+changed: [localhost]
+
+TASK [Add subnet] *********************************************************
+changed: [localhost]
+
+TASK [Create public IP address] *******************************************
+changed: [localhost]
+
+TASK [Create Network Security Group that allows SSH] **********************
+changed: [localhost]
+
+TASK [Create virtual network interface card] *******************************
+changed: [localhost]
+
+TASK [Create VM] **********************************************************
+changed: [localhost]
+
+PLAY RECAP ****************************************************************
+localhost                  : ok=7    changed=6    unreachable=0    failed=0
+```
+ 
+Now check your Azure dashboard!
