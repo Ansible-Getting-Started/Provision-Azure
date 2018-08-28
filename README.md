@@ -126,3 +126,74 @@ localhost                  : ok=3    changed=1    unreachable=0    failed=0
 Navigate to the Resource Groups tab on the left side of the Azure user interface to see your newly created resource group!
 
 
+<h2>Create a VM in Azure!</h2>
+
+In this example, you create a playbook that deploys a VM into an existing infrastructure.  First, make sure to create an SSH key pair with the `ssh-keygen` command.  Then, enter the following:
+`cat ~/.ssh/id_rsa.pub`
+
+Copy the resulting output into a text file so that you can paste it into the `ssh_public_keys` portion of `azure_create_vm.yml`.
+
+Next, create a resource group with `az group create` (or stick to the previously-created resource group). The following example creates a resource group named `webinar-test` (can be any name) in the `eastus` location:
+
+`az group create --name webinar-test --location eastus`
+
+Before we provision a VM, we must create a virtual network within a specific resource group with az network vnet create. The following example creates a virtual network named `webinarVnet` (can be any name) and a subnet named `webinarSubnet` (also can be any name):
+
+```
+az network vnet create \
+> --resource-group webinar-test \
+> --name webinarVnet \
+> --address-prefix 10.0.0.0/16 \
+> --subnet-name webinarSubnet \
+> --subnet-prefix 10.0.1.0/24
+```
+
+Now you should see "webinarVnet" in the Azure UI within the “webinar-test” resource group.
+
+<h3>Create and Run the Ansible Playbook</h3>
+Create an Ansible playbook named `azure_provision.yml` and paste the following contents. This example creates a single VM and configures SSH credentials (remember to enter your own complete public key data in the `key_data` portion):
+
+```
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Create VM
+    azure_rm_virtualmachine:
+      resource_group: webinar-test
+      name: webinarVM
+      vm_size: Standard_DS1_v2
+      admin_username: azureuser
+      ssh_password_enabled: false
+      ssh_public_keys: 
+        - path: /home/azureuser/.ssh/authorized_keys
+          key_data: "ssh-rsa AAAAB3Nz{snip}hwhqT9h"
+      image:
+        offer: CentOS
+        publisher: OpenLogic
+        sku: '7.3'
+        version: latest
+```
+
+To create the VM with Ansible, run the playbook as follows:
+
+`ansible-playbook azure_provision.yml`
+
+Anything that was done previously while you followed instructions (like creating a virtual network inside of the resource group) will come out as OK due to idempotency.  The output looks similar to the following example that shows the VM has been successfully created:
+
+```
+PLAY [Create Azure VM] ****************************************************
+
+TASK [Gathering Facts] ****************************************************
+ok: [localhost]
+
+TASK [Create VM] **********************************************************
+changed: [localhost]
+
+PLAY RECAP ****************************************************************
+localhost                  : ok=2    changed=1    unreachable=0    failed=0
+```
+
+Check the dashboard for the new VM!
+
