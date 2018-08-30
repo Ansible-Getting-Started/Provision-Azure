@@ -376,8 +376,10 @@ PLAY RECAP ******************************************************************
 localhost                  : ok=2    changed=1    unreachable=0    failed=0
 ```
 
-<h2>Use Ansible to Start an Azure Virtual Machine</h2>
+<h2>Use Ansible to Start an Azure VM</h2>
+
 Create a file named `start_vm.yml`, and open it in the VI editor, as follows:
+
 `vi start_vm.yml`
 
 Enter insert mode by selecting the `i` key.
