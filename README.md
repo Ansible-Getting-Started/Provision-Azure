@@ -132,7 +132,9 @@ Navigate to the Resource Groups tab on the left side of the Azure user interface
 
 Let's create a playbook that deploys a VM into complete Azure environment.  
 
-First, make sure to create an SSH key pair with the `ssh-keygen` command.  Then, enter the following:
+First, make sure to create an SSH key pair with the `ssh-keygen` command.  
+
+Then, enter the following:
 `cat ~/.ssh/id_rsa.pub`
 
 Copy the resulting output into a text file so that you can paste it into the `ssh_public_keys` portion of `azure_create_vm.yml`.
@@ -285,7 +287,7 @@ The final step is to create a VM and use all the resources created. The followin
       version: latest
 ```
 
-<h3>Running the Azure Network Playbook</h3>
+<h3>Running the Azure VM Playbook</h3>
 
 To create the complete VM + environment with Ansible, run the playbook as follows:
 
