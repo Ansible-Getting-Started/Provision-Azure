@@ -128,9 +128,11 @@ Navigate to the Resource Groups tab on the left side of the Azure user interface
 
 
 
-<h2>Create a VM in Azure</h2>
+<h2>Create a Complete VM Environment</h2>
 
-In this example, you create a playbook that deploys a VM into an existing infrastructure.  First, make sure to create an SSH key pair with the `ssh-keygen` command.  Then, enter the following:
+Let's create a playbook that deploys a VM into complete Azure environment.  
+
+First, make sure to create an SSH key pair with the `ssh-keygen` command.  Then, enter the following:
 `cat ~/.ssh/id_rsa.pub`
 
 Copy the resulting output into a text file so that you can paste it into the `ssh_public_keys` portion of `azure_create_vm.yml`.
@@ -139,71 +141,7 @@ Next, create a resource group with `az group create` (or stick to the previously
 
 `az group create --name webinar-test --location eastus`
 
-Before we provision a VM, we must create a virtual network within a specific resource group with az network vnet create. The following example creates a virtual network named `webinarVnet` (can be any name) and a subnet named `webinarSubnet` (also can be any name):
-
-```
-az network vnet create \
-> --resource-group webinar-test \
-> --name webinarVnet \
-> --address-prefix 10.0.0.0/16 \
-> --subnet-name webinarSubnet \
-> --subnet-prefix 10.0.1.0/24
-```
-
-Now you should see "webinarVnet" in the Azure UI within the “webinar-test” resource group.
-
-<h3>Create and Run the Ansible Playbook</h3>
-Create an Ansible playbook named `azure_provision.yml` and paste the following contents. This example creates a single VM and configures SSH credentials (remember to enter your own complete public key data in the `key_data` portion):
-
-```
----
-- name: Create Azure VM
-  hosts: localhost
-  connection: local
-  tasks:
-  - name: Create VM
-    azure_rm_virtualmachine:
-      resource_group: webinar-test
-      name: webinarVM
-      vm_size: Standard_DS1_v2
-      admin_username: azureuser
-      ssh_password_enabled: false
-      ssh_public_keys: 
-        - path: /home/azureuser/.ssh/authorized_keys
-          key_data: "ssh-rsa AAAAB3Nz{snip}hwhqT9h"
-      image:
-        offer: CentOS
-        publisher: OpenLogic
-        sku: '7.3'
-        version: latest
-```
-
-To create the VM with Ansible, run the playbook as follows:
-
-`ansible-playbook azure_provision.yml`
-
-Anything that was done previously while you followed instructions (like creating a virtual network inside of the resource group) will come out as OK due to idempotency.  The output looks similar to the following example that shows the VM has been successfully created:
-
-```
-PLAY [Create Azure VM] ****************************************************
-
-TASK [Gathering Facts] ****************************************************
-ok: [localhost]
-
-TASK [Create VM] **********************************************************
-changed: [localhost]
-
-PLAY RECAP ****************************************************************
-localhost                  : ok=2    changed=1    unreachable=0    failed=0
-```
-
-Check the dashboard for the new VM!
-
-
-
-<h2>Create a Complete VM Environment</h2>
-
-Create an Ansible playbook named `azure_create_vm.yml` and paste the following contents.  The fields in red might be different, according to what you input in the previous playbooks.  Again, remember to enter your own complete public key data in the `key_data` portion:
+Create an Ansible playbook named `azure_create_vm.yml` and paste in the following contents.  The fields in red might be different, according to what you input in the previous playbooks.  Again, remember to enter your own complete public key data in the `key_data` portion:
 
 ```
 ---
@@ -349,7 +287,7 @@ The final step is to create a VM and use all the resources created. The followin
 
 <h3>Running the Azure Network Playbook</h3>
 
-To create the complete VM environment with Ansible, run the playbook as follows:
+To create the complete VM + environment with Ansible, run the playbook as follows:
 
 `ansible-playbook azure_create_vm.yml`
 
@@ -384,3 +322,96 @@ localhost                  : ok=7    changed=6    unreachable=0    failed=0
 ```
  
 Now check your Azure dashboard!
+
+
+<h2>Use Ansible to Stop an Azure VM</h2>
+
+Create a file named `stop_vm.yml`, and open it in the VI editor, as follows:
+
+`vi stop_vm.yml`
+
+
+Enter insert mode by selecting the `i` key.
+
+Paste the following sample code into the editor:
+```
+---
+- name: Stop Azure VM
+  hosts: localhost
+  connection: local
+
+  tasks:
+  - name: Stop the virtual machine
+    azure_rm_virtualmachine:
+      resource_group: webinar-test
+      name: WebinarVM
+      allocated: no
+```
+
+Exit insert mode by selecting the Esc key.
+
+Save the file and exit the vi editor by entering the following command:
+`:wq`
+
+
+<h3>Run the Sample Ansible Playbook</h3>
+
+Enter the following command:
+`ansible-playbook stop_vm.yml`
+
+
+The output looks similar to the following example that shows the virtual machine has been successfully stopped:
+```
+PLAY [Stop Azure VM] ********************************************************
+
+TASK [Gathering Facts] ******************************************************
+ok: [localhost]
+
+TASK [Stop the Virtual Machine] ***************************************
+changed: [localhost]
+
+PLAY RECAP ******************************************************************
+localhost                  : ok=2    changed=1    unreachable=0    failed=0
+```
+
+<h2>Use Ansible to Start an Azure Virtual Machine</h2>
+Create a file named `start_vm.yml`, and open it in the VI editor, as follows:
+`vi start_vm.yml`
+
+Enter insert mode by selecting the `i` key.
+
+Paste the following sample code into the editor:
+```
+---
+- name: Start Azure VM
+  hosts: localhost
+  connection: local
+
+  tasks:
+  - name: Start the virtual machine
+    azure_rm_virtualmachine:
+      resource_group: webinar-test
+      name: WebinarVM
+```
+
+Exit insert mode by selecting the Esc key.  Save the file and exit the vi editor by entering the `:wq` command.
+
+
+<h3>Run the Sample Ansible Playbook</h3>
+
+Enter the following command:
+`ansible-playbook start_vm.yml`
+
+The output looks similar to the following example that shows the virtual machine has been successfully started:
+```
+PLAY [Stop Azure VM] ********************************************************
+
+TASK [Gathering Facts] ******************************************************
+ok: [localhost]
+
+TASK [Start the Virtual Machine] ********************************************
+changed: [localhost]
+
+PLAY RECAP ******************************************************************
+localhost                  : ok=2    changed=1    unreachable=0    failed=0
+```
