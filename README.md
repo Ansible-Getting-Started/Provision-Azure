@@ -201,9 +201,9 @@ Check the dashboard for the new VM!
 
 
 
-<h2>Create a Virtual Network</h2>
+<h2>Create a Complete VM Environment</h2>
 
-Create an Ansible playbook named `azure_create_network.yml` and paste the following contents.  The fields in red might be different, according to what you input in the previous playbooks.  Again, remember to enter your own complete public key data in the `key_data` portion:
+Create an Ansible playbook named `azure_create_vm.yml` and paste the following contents.  The fields in red might be different, according to what you input in the previous playbooks.  Again, remember to enter your own complete public key data in the `key_data` portion:
 
 ```
 ---
@@ -264,9 +264,9 @@ Create an Ansible playbook named `azure_create_network.yml` and paste the follow
         version: latest
 ```
 
-<h3>How the azure_create_network.yml Playbook Works</h3>
+<h3>How the azure_create_vm.yml Playbook Works</h3>
 
-The following section in an Ansible playbook creates a virtual network named `webinarVnet` in the `10.0.0.0/16` address space, if you haven’t done so already.  Even if you already have, this task will do no harm on re-run:
+The following section in an Ansible playbook creates a virtual network named `webinarVnet` in the `10.0.0.0/16` address space:
 
 ```
 - name: Create virtual network
@@ -287,7 +287,7 @@ To add a subnet, the following section creates a subnet named `webinarSubnet` in
     virtual_network: webinarVnet
 ```
 
-To access resources across the internet, create and assign a public IP address to your VM. The following section in `azure_create_network.yml` creates a public IP address named `myPublicIP`:
+To access resources across the internet, create and assign a public IP address to your VM. The following section in `azure_create_vm.yml` creates a public IP address named `myPublicIP`:
 
 ```
 - name: Create public IP address
@@ -297,7 +297,7 @@ To access resources across the internet, create and assign a public IP address t
     name: myPublicIP
 ```
 
-Network Security Groups control the flow of network traffic in and out of your VM. The following section in `azure_create_network.yml` creates a network security group named `webinarNetworkSecurityGroup` and defines a rule to allow SSH traffic on TCP port 22:
+Network Security Groups control the flow of network traffic in and out of your VM. The following section in `azure_create_vm.yml` creates a network security group named `webinarNetworkSecurityGroup` and defines a rule to allow SSH traffic on TCP port 22:
 
 ```
 - name: Create Network Security Group that allows SSH
@@ -313,7 +313,7 @@ Network Security Groups control the flow of network traffic in and out of your V
         direction: Inbound
 ```
 
-A virtual network interface card (NIC) connects your VM to a given virtual network, public IP address, and network security group. The following section in `azure_create_network.yml` creates a virtual NIC named myNIC connected to the virtual networking resources you have created:
+A virtual network interface card (NIC) connects your VM to a given virtual network, public IP address, and network security group. The following section in `azure_create_vm.yml` creates a virtual NIC named myNIC connected to the virtual networking resources you have created:
 
 ```
 - name: Create virtual network interface card
@@ -351,7 +351,7 @@ The final step is to create a VM and use all the resources created. The followin
 
 To create the complete VM environment with Ansible, run the playbook as follows:
 
-`ansible-playbook azure_create_network.yml`
+`ansible-playbook azure_create_vm.yml`
 
 The output looks similar to the following example that shows the VM has been successfully created:
 
