@@ -48,6 +48,7 @@ Output like this should show up; copy this information into a text file so that 
 Now you’re ready to create a credentials file for Ansible on Cloud Shell.  Input the following commands to change into the `.azure` directory, and create/edit the credentials file:
 
 `cd ~/.azure`
+
 `vi ~/.azure/credentials`
 
 The credentials file itself combines the subscription ID with the output of creating a service principal.  Type `i` in order to insert the following lines into the credentials file - replacing the placeholders with the information from the output you got earlier:
