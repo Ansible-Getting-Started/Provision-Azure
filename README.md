@@ -67,7 +67,7 @@ Exit insert mode by selecting the Esc key, then save and close the file with `:w
 
 In order to make sure everything is configured correctly, let’s use Ansible to create a resource group.
 
-In CloudShell, create a file named rg.yml:
+In Cloud Shell, create a file named rg.yml:
 `vi rg.yml`
 
 Enter insert mode by selecting the `i` key.
