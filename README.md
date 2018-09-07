@@ -11,7 +11,7 @@ Follow the instructions below:
 To check for Ansible, type in:
 `which ansible`
 
-Azure CLI will need to be version 2.0.4 or later.  Run the `az --version` command to find the version.
+Azure CLI will need to be version 2.0.4 or later.  Run the `ansible --version` command to find the version.
 
 <h3>Acquire Azure Credentials and Configure Ansible to Use Them</h3>
 
